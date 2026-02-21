@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscrição em Formações — HEFP</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1f3c;
+    --gold: #c9a84c;
+    --gold-light: #e8c96e;
+    --cream: #f8f5ef;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: rgba(201,168,76,0.25);
+    --white: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--navy); position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; border-radius: 50%; border: 1px solid rgba(201,168,76,0.15); }
+  header::after  { content: ''; position: absolute; bottom: -80px; left: 10%; width: 200px; height: 200px; border-radius: 50%; border: 1px solid rgba(201,168,76,0.1); }
+  .header-inner { max-width: 900px; margin: 0 auto; padding: 48px 32px 40px; position: relative; z-index: 1; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--border); padding: 5px 12px; border-radius: 2px; margin-bottom: 18px; }
+  header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(30px,5vw,50px); font-weight: 600; color: var(--white); line-height: 1.15; margin-bottom: 10px; }
+  header h1 span { color: var(--gold); }
+  header p { font-size: 14px; color: rgba(255,255,255,0.55); font-weight: 300; }
+  .divider { height: 3px; background: linear-gradient(90deg, var(--gold), transparent); }
+
+  /* Steps bar */
+  .steps-bar { background: var(--navy); padding: 0 32px 24px; }
+  .steps-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; }
+  .step-item { display: flex; align-items: center; gap: 10px; }
+  .step-connector { flex: 1; height: 1px; background: rgba(255,255,255,0.15); margin: 0 12px; }
+  .step-circle { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.4); flex-shrink: 0; transition: all 0.3s; }
+  .step-circle.active { background: var(--gold); border-color: var(--gold); color: var(--navy); font-weight: 700; }
+  .step-circle.done { background: rgba(201,168,76,0.2); border-color: var(--gold); color: var(--gold); }
+  .step-label { font-size: 11px; letter-spacing: 0.5px; color: rgba(255,255,255,0.35); transition: color 0.3s; white-space: nowrap; }
+  .step-label.active { color: var(--gold); font-weight: 500; }
+  .step-label.done { color: rgba(255,255,255,0.6); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
+  .form-card { background: var(--white); border: 1px solid rgba(0,0,0,0.07); border-radius: 4px; padding: 48px; box-shadow: 0 4px 32px rgba(13,31,60,0.06); }
+
+  .step-panel { display: none; animation: fadeUp 0.35s ease both; }
+  .step-panel.active { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  .section-label { font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .info-note { background: rgba(13,31,60,0.04); border-left: 3px solid var(--gold); padding: 12px 16px; border-radius: 0 3px 3px 0; font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+
+  /* Formation cards */
+  .formacao-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .formacao-card input[type="radio"] { display: none; }
+  .formacao-card label { display: block; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 14px 16px; background: var(--cream); transition: all 0.2s; font-size: 13px; color: var(--text); line-height: 1.4; }
+  .formacao-card label .curso-nome { font-weight: 500; font-size: 13px; color: var(--navy); display: block; margin-bottom: 5px; }
+  .formacao-card label .curso-meta { font-size: 11px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 5px; }
+  .formacao-card label .curso-meta span { background: rgba(13,31,60,0.06); padding: 2px 6px; border-radius: 2px; }
+  .formacao-card label .curso-dest { font-size: 11px; color: #8a6200; font-style: italic; display: block; }
+  .formacao-card input[type="radio"]:checked + label { border-color: var(--gold); background: rgba(201,168,76,0.07); box-shadow: 0 0 0 1px var(--gold); }
+  .formacao-card input[type="radio"]:checked + label .curso-nome { color: #8a6200; }
+
+  /* Selected banner */
+  .selected-banner { background: var(--navy); border-radius: 4px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .selected-banner .icon { width: 36px; height: 36px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+  .selected-banner .info { flex: 1; }
+  .selected-banner .info strong { display: block; color: var(--white); font-size: 14px; margin-bottom: 2px; }
+  .selected-banner .info span { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .selected-banner .change-btn { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); background: none; border: 1px solid var(--border); border-radius: 2px; padding: 6px 12px; cursor: pointer; transition: background 0.2s; }
+  .selected-banner .change-btn:hover { background: rgba(201,168,76,0.1); }
+
+  /* Fields */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .section { margin-bottom: 32px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 11px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+  label .req { color: var(--gold); margin-left: 2px; }
+  input, select, textarea { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--cream); border: 1px solid rgba(0,0,0,0.1); border-radius: 3px; padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; -webkit-appearance: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; cursor: pointer; }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* Buttons */
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 28px; border-top: 1px solid rgba(0,0,0,0.06); flex-wrap: wrap; gap: 12px; }
+  .btn-primary { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase; color: var(--navy); background: var(--gold); border: none; border-radius: 3px; padding: 14px 36px; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,168,76,0.35); }
+  .submit-note { font-size: 12px; color: var(--muted); max-width: 380px; line-height: 1.6; }
+
+  /* Success */
+  #success-msg { display: none; text-align: center; padding: 48px 24px; animation: fadeUp 0.4s ease both; }
+  #success-msg .tick { width: 56px; height: 56px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; color: var(--white); }
+  #success-msg h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+  #success-msg p { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  #success-msg .formacao-confirmada { display: inline-block; margin-top: 14px; background: rgba(201,168,76,0.1); border: 1px solid var(--border); border-radius: 3px; padding: 10px 20px; font-size: 13px; color: #8a6200; font-weight: 500; }
+
+  @media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .form-card { padding: 24px 16px; }
+    .header-inner, .steps-bar { padding-left: 16px; padding-right: 16px; }
+    main { padding: 24px 16px 60px; }
+    .step-label { display: none; }
+    .nav-row { flex-direction: column; align-items: stretch; text-align: center; }
+    .selected-banner { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="badge">Hospital — HEFP</span>
+    <h1>Formulário de <span>Inscrição</span><br>em Formações</h1>
+    <p>Plano de Formação 2026 · Unidade HEFP</p>
+  </div>
+</header>
+<div class="divider"></div>
+
+<div class="steps-bar">
+  <div class="steps-inner">
+    <div class="step-item">
+      <div class="step-circle active" id="circle-1">1</div>
+      <span class="step-label active" id="label-1">Escolher Formação</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item">
+      <div class="step-circle" id="circle-2">2</div>
+      <span class="step-label" id="label-2">Dados de Inscrição</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item">
+      <div class="step-circle" id="circle-3">3</div>
+      <span class="step-label" id="label-3">Confirmação</span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="form-card">
+
+    <!-- PASSO 1 -->
+    <div class="step-panel active" id="step-1">
+      <div class="section-label">Passo 1 — Selecione a formação</div>
+      <div class="info-note">Selecione <strong>uma formação</strong> para a qual pretende submeter inscrição. Para se inscrever em mais formações, submeta um novo formulário após concluir este.</div>
+
+      <div class="formacao-grid">
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig1" value="Higienização Hospitalar no Internamento — 23 fev, 14h–16h"><label for="hig1"><span class="curso-nome">Higienização — Internamento</span><span class="curso-meta"><span>23 fev</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Internamento)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig2" value="Higienização Hospitalar na Consulta Externa — 2 mar, 14h–16h"><label for="hig2"><span class="curso-nome">Higienização — Consulta Externa</span><span class="curso-meta"><span>2 mar</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Consulta Externa)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig3" value="Higienização Hospitalar na Endoscopia — 9 mar, 14h–16h"><label for="hig3"><span class="curso-nome">Higienização — Endoscopia</span><span class="curso-meta"><span>9 mar</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Endoscopia)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv1" value="Suporte Básico de Vida — 10 mar, 9h–13h"><label for="sbv1"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>10 mar</span><span>9h–13h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv2" value="Suporte Básico de Vida — 10 mar, 14h–18h"><label for="sbv2"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>10 mar</span><span>14h–18h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig4" value="Higienização Hospitalar no Atendimento Permanente — 16 mar, 14h–16h"><label for="hig4"><span class="curso-nome">Higienização — Atendimento Permanente</span><span class="curso-meta"><span>16 mar</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Atendimento Permanente)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig5" value="Higienização Hospitalar no Bloco — 23 mar, 14h–16h"><label for="hig5"><span class="curso-nome">Higienização — Bloco</span><span class="curso-meta"><span>23 mar</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Bloco)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="pos1" value="Posicionamentos — Sessão Prática — 30 abr, 15h–16h"><label for="pos1"><span class="curso-nome">Posicionamentos — Sessão Prática</span><span class="curso-meta"><span>30 abr</span><span>15h–16h</span><span>1h</span></span><span class="curso-dest">Auxiliares de Saúde + Enfermeiros (INT e UCC)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig6" value="Higienização Hospitalar no Internamento — 25 mai, 14h–16h"><label for="hig6"><span class="curso-nome">Higienização — Internamento</span><span class="curso-meta"><span>25 mai</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Internamento)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="prec1" value="Precauções Padrão e Isolamento — 8 jun, 14h30–15h30"><label for="prec1"><span class="curso-nome">Precauções Padrão e Isolamento</span><span class="curso-meta"><span>8 jun</span><span>14h30–15h30</span><span>1h</span></span><span class="curso-dest">Enfermeiros e AAM (Internamento)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv3" value="Suporte Básico de Vida — 15 jun, 9h–13h"><label for="sbv3"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>15 jun</span><span>9h–13h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv4" value="Suporte Básico de Vida — 15 jun, 14h–18h"><label for="sbv4"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>15 jun</span><span>14h–18h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="que1" value="Prevenção de Quedas — 2 jul, 15h–16h"><label for="que1"><span class="curso-nome">Prevenção de Quedas</span><span class="curso-meta"><span>2 jul</span><span>15h–16h</span><span>1h</span></span><span class="curso-dest">Auxiliares de Saúde + Enfermeiros (INT e UCC)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig7" value="Higienização Hospitalar na Consulta Externa — 7 set, 14h–16h"><label for="hig7"><span class="curso-nome">Higienização — Consulta Externa</span><span class="curso-meta"><span>7 set</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Consulta Externa)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig8" value="Higienização Hospitalar na Endoscopia — 14 set, 14h–16h"><label for="hig8"><span class="curso-nome">Higienização — Endoscopia</span><span class="curso-meta"><span>14 set</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Endoscopia)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig9" value="Higienização Hospitalar no Atendimento Permanente — 21 set, 14h–16h"><label for="hig9"><span class="curso-nome">Higienização — Atendimento Permanente</span><span class="curso-meta"><span>21 set</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Atendimento Permanente)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig10" value="Higienização Hospitalar no Bloco — 28 set, 14h–16h"><label for="hig10"><span class="curso-nome">Higienização — Bloco</span><span class="curso-meta"><span>28 set</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Bloco)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv5" value="Suporte Básico de Vida — 6 out, 9h–13h"><label for="sbv5"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>6 out</span><span>9h–13h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv6" value="Suporte Básico de Vida — 6 out, 14h–18h"><label for="sbv6"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>6 out</span><span>14h–18h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig11" value="Higienização Hospitalar no Internamento — 19 out, 14h–16h"><label for="hig11"><span class="curso-nome">Higienização — Internamento</span><span class="curso-meta"><span>19 out</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Internamento)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="pos2" value="Posicionamentos — Sessão Prática — 12 nov, 15h–16h"><label for="pos2"><span class="curso-nome">Posicionamentos — Sessão Prática</span><span class="curso-meta"><span>12 nov</span><span>15h–16h</span><span>1h</span></span><span class="curso-dest">Auxiliares de Saúde + Enfermeiros (INT e UCC)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv7" value="Suporte Básico de Vida — 17 nov, 9h–13h"><label for="sbv7"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>17 nov</span><span>9h–13h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv8" value="Suporte Básico de Vida — 17 nov, 14h–18h"><label for="sbv8"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>17 nov</span><span>14h–18h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="prec2" value="Precauções Padrão e Isolamento — 17 nov, 14h30–15h30"><label for="prec2"><span class="curso-nome">Precauções Padrão e Isolamento</span><span class="curso-meta"><span>17 nov</span><span>14h30–15h30</span><span>1h</span></span><span class="curso-dest">Enfermeiros e AAM (Internamento)</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv9" value="Suporte Básico de Vida — 24 nov, 9h–13h"><label for="sbv9"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>24 nov</span><span>9h–13h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="sbv10" value="Suporte Básico de Vida — 24 nov, 14h–18h"><label for="sbv10"><span class="curso-nome">Suporte Básico de Vida</span><span class="curso-meta"><span>24 nov</span><span>14h–18h</span><span>4h</span></span><span class="curso-dest">Todos os profissionais</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="aut1" value="Medidas de Auto-proteção — 26 nov, 9h30–11h30"><label for="aut1"><span class="curso-nome">Medidas de Auto-proteção</span><span class="curso-meta"><span>26 nov</span><span>9h30–11h30</span><span>2h</span></span><span class="curso-dest">Todas as funções</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="aut2" value="Medidas de Auto-proteção — 26 nov, 14h30–16h30"><label for="aut2"><span class="curso-nome">Medidas de Auto-proteção</span><span class="curso-meta"><span>26 nov</span><span>14h30–16h30</span><span>2h</span></span><span class="curso-dest">Todas as funções</span></label></div>
+        <div class="formacao-card"><input type="radio" name="formacao" id="hig12" value="Higienização Hospitalar no Internamento — 30 nov, 14h–16h"><label for="hig12"><span class="curso-nome">Higienização — Internamento</span><span class="curso-meta"><span>30 nov</span><span>14h–16h</span><span>2h</span></span><span class="curso-dest">Enfermeiros e AAM (Internamento)</span></label></div>
+      </div>
+
+      <div class="nav-row">
+        <span></span>
+        <button class="btn-primary" onclick="irParaPasso2()">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- PASSO 2 -->
+    <div class="step-panel" id="step-2">
+      <div class="section-label">Passo 2 — Dados de Inscrição</div>
+
+      <div class="selected-banner">
+        <div class="icon">📋</div>
+        <div class="info">
+          <strong id="banner-formacao">—</strong>
+          <span>Formação selecionada</span>
+        </div>
+        <button class="change-btn" onclick="voltarPasso1()">Alterar</button>
+      </div>
+
+      <form id="inscricao-form" novalidate>
+        <div class="section">
+          <div class="section-label">Dados Pessoais</div>
+          <div class="grid-2">
+            <div class="field"><label>Nome completo <span class="req">*</span></label><input type="text" name="nome" placeholder="Ex: Maria João Silva" required></div>
+            <div class="field"><label>Número mecanográfico</label><input type="text" name="num_mecanografico" placeholder="Ex: 12345"></div>
+            <div class="field"><label>Email institucional <span class="req">*</span></label><input type="email" name="email" placeholder="nome@hefp.min-saude.pt" required></div>
+            <div class="field"><label>Contacto telefónico</label><input type="tel" name="telefone" placeholder="9XX XXX XXX"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Dados Profissionais</div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Categoria / Função <span class="req">*</span></label>
+              <select name="funcao" required>
+                <option value="" disabled selected>Selecione</option>
+                <option>Médico</option>
+                <option>Enfermeiro</option>
+                <option>Auxiliar de Saúde</option>
+                <option>Assistente Técnico/Administrativo</option>
+                <option>Técnico de Diagnóstico e Terapêutica</option>
+                <option>Outra</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Serviço / Unidade <span class="req">*</span></label>
+              <select name="servico" required>
+                <option value="" disabled selected>Selecione</option>
+                <option>Internamento</option>
+                <option>UCC</option>
+                <option>Consulta Externa</option>
+                <option>Endoscopia</option>
+                <option>Atendimento Permanente</option>
+                <option>Bloco Operatório</option>
+                <option>Outro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Observações</div>
+          <div class="field"><label>Notas adicionais (opcional)</label><textarea name="observacoes" placeholder="Informação adicional relevante para a inscrição…"></textarea></div>
+        </div>
+
+        <div class="nav-row">
+          <p class="submit-note">Ao submeter confirma que os dados são verdadeiros. A confirmação fica sujeita a disponibilidade de vagas.</p>
+          <button type="submit" class="btn-primary">Submeter Inscrição</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- SUCESSO -->
+    <div id="success-msg">
+      <div class="tick">✓</div>
+      <h2>Inscrição submetida!</h2>
+      <p>A sua inscrição foi registada com sucesso.</p>
+      <p>Receberá confirmação por email brevemente.</p>
+      <div class="formacao-confirmada" id="success-formacao"></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxv1i6v0CF0h0G3gcCY8oPUuJPgjt1aogGK0OWRgZmQMD_ufa9rfGf0JK10kjdBOe9/exec';
+
+  function setStep(n) {
+    [1,2,3].forEach(i => {
+      document.getElementById('circle-' + i).className = 'step-circle' + (i < n ? ' done' : i === n ? ' active' : '');
+      document.getElementById('label-' + i).className  = 'step-label'  + (i < n ? ' done' : i === n ? ' active' : '');
+    });
+  }
+
+  function irParaPasso2() {
+    const sel = document.querySelector('input[name="formacao"]:checked');
+    if (!sel) { alert('Por favor selecione uma formação para continuar.'); return; }
+    document.getElementById('banner-formacao').textContent = sel.value;
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function voltarPasso1() {
+    document.getElementById('step-2').classList.remove('active');
+    document.getElementById('step-1').classList.add('active');
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.getElementById('inscricao-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nome    = document.querySelector('[name="nome"]').value.trim();
+    const email   = document.querySelector('[name="email"]').value.trim();
+    const funcao  = document.querySelector('[name="funcao"]').value;
+    const servico = document.querySelector('[name="servico"]').value;
+    const formacao = document.querySelector('input[name="formacao"]:checked');
+
+    if (!nome || !email || !funcao || !servico) { alert('Por favor preencha todos os campos obrigatórios.'); return; }
+
+    const btn = document.querySelector('button[type="submit"]');
+    btn.textContent = 'A enviar…';
+    btn.disabled = true;
+
+    const params = new URLSearchParams({
+      nome,
+      num_mecanografico: document.querySelector('[name="num_mecanografico"]').value.trim(),
+      email,
+      telefone: document.querySelector('[name="telefone"]').value.trim(),
+      funcao,
+      servico,
+      formacoes: formacao ? formacao.value : '',
+      observacoes: document.querySelector('[name="observacoes"]').value.trim()
+    });
+
+    const img = new Image();
+    img.onload = img.onerror = function() {
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('success-msg').style.display = 'block';
+      document.getElementById('success-formacao').textContent = formacao ? formacao.value : '';
+      setStep(3);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    img.src = SCRIPT_URL + '?' + params.toString();
+  });
+</script>
+</body>
+</html>
